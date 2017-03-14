@@ -29,17 +29,17 @@ void initializePins() {
 
 void setup() {
   Serial.begin(9600);
-  
+
   SPI.begin();
 
   initializePins();
 
   digitalWrite(PIN_TRANSISTOR, HIGH);
   lockServo.write(POSITION_UNLOCK);
-  
+
   lockServo.attach(PIN_SERVO);
   locked = false;
-  
+
   digitalWrite(PIN_TRANSISTOR, LOW);
 
   digitalWrite(PIN_CHIPSELECT, LOW);
@@ -49,7 +49,7 @@ void setup() {
 }
 
 void setServo(boolean enabled) {
-  if(enabled) {
+  if (enabled) {
     digitalWrite(PIN_TRANSISTOR, HIGH);
   } else {
     digitalWrite(PIN_TRANSISTOR, LOW);
@@ -57,54 +57,54 @@ void setServo(boolean enabled) {
 }
 
 void lockBeep() {
-    tone(PIN_BUZZER, 800); // Send 1KHz sound signal...
-    delay(200);
-    noTone(PIN_BUZZER);
-    tone(PIN_BUZZER, 1000); // Send 1KHz sound signal...
-    delay(200);
-    noTone(PIN_BUZZER);
+  tone(PIN_BUZZER, 800); // Send 1KHz sound signal...
+  delay(200);
+  noTone(PIN_BUZZER);
+  tone(PIN_BUZZER, 1000); // Send 1KHz sound signal...
+  delay(200);
+  noTone(PIN_BUZZER);
 }
 
 void unlockBeep() {
-    tone(PIN_BUZZER, 1000); // Send 1KHz sound signal...
-    delay(200);
-    noTone(PIN_BUZZER);
-    tone(PIN_BUZZER, 800); // Send 1KHz sound signal...
-    delay(200);
-    noTone(PIN_BUZZER);
+  tone(PIN_BUZZER, 1000); // Send 1KHz sound signal...
+  delay(200);
+  noTone(PIN_BUZZER);
+  tone(PIN_BUZZER, 800); // Send 1KHz sound signal...
+  delay(200);
+  noTone(PIN_BUZZER);
 }
 
 void toggleLock() {
-    if (!locked) {
-      lockBeep();
-      
-      setServo(true);
+  if (!locked) {
+    lockBeep();
 
-      lockServo.attach(PIN_SERVO);
-      delay(15);
+    setServo(true);
 
-      lockServo.write(POSITION_LOCK);
-      delay(500);
+    lockServo.attach(PIN_SERVO);
+    delay(15);
 
-      setServo(false);
+    lockServo.write(POSITION_LOCK);
+    delay(500);
 
-      locked = true;
-    } else {
-      unlockBeep();
-      
-      setServo(true);
+    setServo(false);
 
-      lockServo.attach(PIN_SERVO);
-      delay(15);
+    locked = true;
+  } else {
+    unlockBeep();
 
-      lockServo.write(POSITION_UNLOCK);
-      delay(500);
+    setServo(true);
+
+    lockServo.attach(PIN_SERVO);
+    delay(15);
+
+    lockServo.write(POSITION_UNLOCK);
+    delay(500);
 
 
-      setServo(false);
+    setServo(false);
 
-      locked = false;
-    }
+    locked = false;
+  }
 }
 
 uchar * readRfid() {
@@ -113,7 +113,7 @@ uchar * readRfid() {
   uchar status = rfid.AddicoreRFID_Request(PICC_REQIDL, str);
   //Anti-collision, return tag serial number 4 bytes
   status = rfid.AddicoreRFID_Anticoll(str);
-  if(status == MI_OK) {
+  if (status == MI_OK) {
     return str;
   }
   return NULL;
@@ -123,7 +123,7 @@ void loop() {
   lockServo.detach();
 
   uchar * str = readRfid();
-  if(str != NULL) {
+  if (str != NULL) {
     Serial.print("Tag number:\t");
     Serial.print(str[0]);
     Serial.print(" ,");
@@ -133,13 +133,13 @@ void loop() {
     Serial.print(" ,");
     Serial.print(str[3]);
     Serial.print("\n");
-    
+
     uchar checksum = str[0] ^ str[1] ^ str[2] ^ str[3];
     Serial.print("Calculated checksum:\t");
     Serial.println(checksum);
 
     toggleLock();
-    
+
     Serial.println();
     delay(1000);
   }
